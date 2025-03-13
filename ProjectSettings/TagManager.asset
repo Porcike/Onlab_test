@@ -6,6 +6,7 @@ TagManager:
   tags:
   - modelObject
   - cube
+  - spawnCanvas
   layers:
   - Default
   - TransparentFX
