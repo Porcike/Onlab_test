@@ -28,7 +28,7 @@ public class CubeSpawner : NetworkBehaviour
         if(Runner != null)
         {
             _spawnCanvas.SetActive(false);
-            Runner.Spawn(cubePrefab, new Vector3(0, 0.01f, 0), Quaternion.identity);
+            Runner.Spawn(cubePrefab, _spawnCanvas.transform.Find("SpawnButton").transform.position);
             buttonCanvas.SetActive(true);
         }
     }

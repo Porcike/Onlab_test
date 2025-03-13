@@ -43,8 +43,10 @@ public class CubeController : NetworkBehaviour
 
     public void Find()
     {
-        if(cube == null)
+        Debug.Log("Find called.");
+        if (cube == null)
         {
+            Debug.Log("Cube not found. Finding cube.");
             cube = GameObject.FindWithTag("cube");
         }
     }
