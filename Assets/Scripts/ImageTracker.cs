@@ -1,11 +1,15 @@
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using System.Collections.Generic;
 
 public class ImageTracker : MonoBehaviour
 {
     private ARTrackedImageManager manager;
     private MutableRuntimeReferenceImageLibrary referenceLibrary;
+    private List<Texture2D> textures;
+    private int index;
+    private bool arEnabled;
 
     void OnEnable()
     {
@@ -15,33 +19,45 @@ public class ImageTracker : MonoBehaviour
     void OnDisable()
     {
         ARSession.stateChanged -= OnARSessionStateChanged;
-    } 
+    }
 
     void Start()
     {
         manager = GetComponent<ARTrackedImageManager>();
-
         referenceLibrary = manager
             .CreateRuntimeLibrary(manager.referenceLibrary as XRReferenceImageLibrary) 
-                as MutableRuntimeReferenceImageLibrary;
+            as MutableRuntimeReferenceImageLibrary;
+        manager.referenceLibrary = referenceLibrary;
+        textures = GameObject.Find("ImageLoader").GetComponent<ImageLoader>().Textures;
+        index = 0;
+        arEnabled = false;
 
-        //Debug.Log("The size of the Reference Image Library: " + referenceLibrary.count);
+        Debug.Log("The size of the Reference Image Library: " + referenceLibrary.count);
     }
 
     void OnARSessionStateChanged(ARSessionStateChangedEventArgs args)
     {
-        if(referenceLibrary.count == 0 && (args.state == ARSessionState.Ready || args.state == ARSessionState.SessionTracking))
+        if((args.state == ARSessionState.Ready || args.state == ARSessionState.SessionTracking))
         {
-            Debug.Log("The size of the Reference Image Library: " + referenceLibrary.count);
-            referenceLibrary.ScheduleAddImageWithValidationJob(manager.referenceLibrary[0].texture , "image", 0.5f);
-            Debug.Log("The size of the Reference Image Library: " + referenceLibrary.count);
-            manager.referenceLibrary = referenceLibrary;
-            Debug.Log("The size of the Reference Image Library: " + manager.referenceLibrary.count);
+            arEnabled = true;
+        }
+        else
+        {
+            arEnabled = false;;
         }
     }
 
-    public void AddImage(Texture2D texture)
+    public void AddImage()
     {
-        referenceLibrary.ScheduleAddImageWithValidationJob(texture, "image", 0.5f);
+        if(index != textures.Count && arEnabled)
+        {
+            var name = "image" + index.ToString();
+            referenceLibrary.ScheduleAddImageWithValidationJob(textures[index], name, 0.5f);
+
+            Debug.Log("The size of the Reference Image Library: " + referenceLibrary.count);
+            Debug.Log("The size of the ARManager Reference Image Library: " + manager.referenceLibrary.count);
+
+            index++;
+        }
     }
 }
